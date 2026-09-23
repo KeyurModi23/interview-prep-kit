@@ -1,3 +1,4 @@
+import { scrapeCompanyContext } from '../services/scraperService.js';
 import { extractRequirements } from './extractor.js';
 import { generateQuestions } from './generator.js';
 import { checkCoverage } from './coverage.js';
