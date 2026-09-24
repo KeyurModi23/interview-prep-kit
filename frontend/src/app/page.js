@@ -25,6 +25,20 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (kit && kit._id && !kit._isNew) {
+      const timer = setTimeout(() => {
+        fetch(`http://localhost:3001/api/v1/kits/${kit._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ kit })
+        }).catch(console.error);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [kit]);
+
+  useEffect(() => {
     if (user) {
       fetch('http://localhost:3001/api/v1/kits', { credentials: 'include' })
         .then(res => res.json())
@@ -72,7 +86,7 @@ export default function Home() {
       });
       const data = await response.json();
       if (!data.success) throw new Error(data.message || 'Generation failed');
-      setKit(data.data);
+      setKit({ ...data.data, _isNew: true });
       fetch('http://localhost:3001/api/v1/kits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,6 +110,9 @@ export default function Home() {
   if (isLoadingSession) return <div className="min-h-screen bg-[#030712] flex items-center justify-center text-amber-400"><Loader2 className="w-10 h-10 animate-spin" /></div>;
   if (!user) return <AuthForm onAuthSuccess={setUser} />;
   if (kit) return <KitManager initialKit={kit} onLogout={handleLogout} onClose={() => setKit(null)} />;
+
+  
+
 
   return (
     <div className="min-h-screen bg-[#030712] text-slate-200 p-4 font-sans relative overflow-hidden">
@@ -127,7 +144,9 @@ export default function Home() {
               <div className="p-6 bg-rose-500/10 text-rose-300 rounded-2xl border border-rose-500/20 font-medium text-sm leading-relaxed max-h-48 overflow-y-auto">
                 <span className="font-extrabold block mb-2 text-rose-400">Generation Failed</span>
                 {error.includes('quota') || error.includes('429') 
-                  ? `Google Gemini API Quota Exceeded (429).\n\nYou have run out of free tier requests. Please provide a new API key.` 
+                  ? `Google Gemini API Quota Exceeded (429).
+
+You have run out of free tier requests. Please provide a new API key.` 
                   : error.length > 300 ? error.substring(0, 300) + '...' : error}
               </div>
             )}

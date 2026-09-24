@@ -27,3 +27,13 @@ export const getKitById = asyncHandler(async (req, res) => {
   if (!kit) throw new Error('Kit not found');
   return successResponse(res, 'Kit fetched', kit);
 });
+
+export const updateKit = asyncHandler(async (req, res) => {
+  const kit = await Kit.findOneAndUpdate(
+    { _id: req.params.id, user: req.user._id },
+    { data: req.body.kit },
+    { new: true }
+  );
+  if (!kit) throw new Error('Kit not found');
+  return successResponse(res, 'Kit updated', kit);
+});

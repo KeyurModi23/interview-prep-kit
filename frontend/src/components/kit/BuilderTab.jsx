@@ -6,10 +6,18 @@ export default function BuilderTab({ kit, setKit }) {
   const [editingId, setEditingId] = useState(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
-  const handleEdit = (id, prompt, outline) => {
+  const handleAdd = () => {
+    setKit(prev => {
+      const newQ = { id: `q-custom-${Date.now()}`, category: 'technical', prompt: '[NEW QUESTION]', answer_outline: '[ANSWER OUTLINE]', _isEdited: true };
+      return { ...prev, questions: [newQ, ...prev.questions] };
+    });
+    setEditingId(`q-custom-${Date.now()}`);
+  };
+
+  const handleEdit = (id, prompt, outline, category) => {
     setKit(prev => ({
       ...prev,
-      questions: prev.questions.map(q => q.id === id ? { ...q, prompt, answer_outline: outline, _isEdited: true } : q)
+      questions: prev.questions.map(q => q.id === id ? { ...q, prompt, answer_outline: outline, category: category || q.category, _isEdited: true } : q)
     }));
     setEditingId(null);
   };
@@ -101,8 +109,21 @@ export default function BuilderTab({ kit, setKit }) {
                   </div>
                   
                   {editingId === q.id ? (
-                    <form onSubmit={(e) => { e.preventDefault(); handleEdit(q.id, e.target.prompt.value, e.target.outline.value); }} className="space-y-4 mt-4 animate-in fade-in">
-                      <textarea name="prompt" className="w-full p-4 bg-[#111827] border border-amber-500/50 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-white font-medium" rows="2" defaultValue={q.prompt} autoFocus />
+                    <form onSubmit={(e) => { e.preventDefault(); handleEdit(q.id, e.target.prompt.value, e.target.outline.value, e.target.category.value); }} className="space-y-4 mt-4 animate-in fade-in">
+                      
+                        <select name="category" className="w-full p-3 bg-[#111827] border border-white/10 rounded-xl outline-none text-sm text-slate-300 focus:border-amber-500/50" defaultValue={q.category || 'technical'}>
+                          <option value="technical">Technical</option>
+                          <option value="behavioural">Behavioural</option>
+                          <option value="system-design">System Design</option>
+                          <option value="company-fit">Company Fit</option>
+                        </select>
+                        <select name="category" className="w-full p-3 bg-[#111827] border border-white/10 rounded-xl outline-none text-sm text-slate-300 focus:border-amber-500/50 mb-4" defaultValue={q.category || 'technical'}>
+                          <option value="technical">Technical</option>
+                          <option value="behavioural">Behavioural</option>
+                          <option value="system-design">System Design</option>
+                          <option value="company-fit">Company Fit</option>
+                        </select>
+                        <textarea name="prompt" className="w-full p-4 bg-[#111827] border border-amber-500/50 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-white font-medium" rows="2" defaultValue={q.prompt} autoFocus />
                       <textarea name="outline" className="w-full p-4 bg-[#111827] border border-white/10 rounded-xl outline-none text-sm text-slate-300 focus:border-amber-500/50" rows="4" defaultValue={q.answer_outline} />
                       <div className="flex gap-3">
                         <button  type="submit" className="px-5 py-2 bg-amber-500 text-white rounded-lg text-sm font-bold hover:bg-amber-500 transition-colors">Save Question</button>

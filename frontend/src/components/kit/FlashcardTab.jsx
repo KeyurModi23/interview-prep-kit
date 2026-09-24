@@ -5,6 +5,7 @@ import { BrainCircuit, Zap, RefreshCcw, ThumbsUp, ThumbsDown, Check } from 'luci
 export default function FlashcardTab({ kit, setKit }) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const cards = kit.flashcards || [];
 
   const rateCard = (score) => {
@@ -16,6 +17,16 @@ export default function FlashcardTab({ kit, setKit }) {
     if (activeIdx < cards.length - 1) {
       setTimeout(() => { setActiveIdx(p => p + 1); setIsFlipped(false); }, 200);
     }
+  };
+
+  const handleAdd = () => {
+    setKit(prev => {
+      const newF = { id: `f-custom-${Date.now()}`, front: '[NEW FLASHCARD FRONT]', back: '[NEW FLASHCARD BACK]' };
+      return { ...prev, flashcards: [newF, ...prev.flashcards] };
+    });
+    setActiveIdx(0);
+    setIsFlipped(false);
+    setIsEditing(true);
   };
 
   const handleSort = () => {
@@ -34,12 +45,54 @@ export default function FlashcardTab({ kit, setKit }) {
         <div className="bg-[#111827]/80 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 text-sm font-bold text-slate-300 shadow-lg">
           Card <span className="text-white">{activeIdx + 1}</span> of {cards.length}
         </div>
-        <button  onClick={handleSort} className="flex items-center gap-2 text-sm font-bold text-emerald-300 bg-emerald-500/10 px-5 py-2.5 rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+        <div className="flex gap-2">
+          <button onClick={() => setIsEditing(true)} className="flex items-center gap-2 px-4 py-2 text-sm bg-slate-500/10 hover:bg-slate-500/20 text-slate-300 font-bold rounded-2xl transition-all border border-slate-500/20">Edit</button>
+          <button onClick={handleAdd} className="flex items-center gap-2 px-4 py-2 text-sm bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 font-bold rounded-2xl transition-all border border-sky-500/20">
+            + Add Flashcard
+          </button>
+          <button  onClick={handleSort} className="flex items-center gap-2 text-sm font-bold text-emerald-300 bg-emerald-500/10 px-5 py-2.5 rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]">
           <Zap className="w-4 h-4" /> Focus Weakest First
         </button>
+        </div>
       </div>
 
-      <div className="relative w-full max-w-3xl perspective-1000">
+            {isEditing ? (
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          setKit(prev => {
+            const newFc = [...prev.flashcards];
+            newFc[activeIdx] = { ...newFc[activeIdx], front: e.target.front.value, back: e.target.back.value };
+            return { ...prev, flashcards: newFc };
+          });
+          setIsEditing(false);
+        }} className="w-full max-w-3xl bg-[#1e293b] rounded-[2.5rem] border border-slate-700/50 p-8 shadow-2xl animate-in fade-in">
+          <div className="space-y-6">
+            <div>
+              <label className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-2 block">Question (Front)</label>
+              <textarea name="front" defaultValue={cards[activeIdx].front} className="w-full p-4 bg-[#0f172a] border border-slate-600 rounded-xl text-white outline-none focus:border-amber-500" rows={3} autoFocus required />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2 block">Answer Outline (Back)</label>
+              <textarea name="back" defaultValue={cards[activeIdx].back} className="w-full p-4 bg-[#0f172a] border border-slate-600 rounded-xl text-slate-300 outline-none focus:border-emerald-500" rows={4} required />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button type="submit" className="px-5 py-2.5 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-colors">Save Flashcard</button>
+              <button type="button" onClick={() => setIsEditing(false)} className="px-5 py-2.5 bg-white/10 text-slate-300 font-bold rounded-xl hover:bg-white/20 transition-colors">Cancel</button>
+              <button type="button" onClick={() => {
+                setKit(prev => {
+                  const newFc = [...prev.flashcards];
+                  newFc.splice(activeIdx, 1);
+                  return { ...prev, flashcards: newFc };
+                });
+                setIsEditing(false);
+                if (activeIdx > 0) setActiveIdx(a => a - 1);
+                setIsFlipped(false);
+              }} className="px-5 py-2.5 bg-rose-500/10 text-rose-400 font-bold rounded-xl hover:bg-rose-500/20 transition-colors ml-auto">Delete</button>
+            </div>
+          </div>
+        </form>
+      ) : (
+        <div className="relative w-full max-w-3xl perspective-1000">
         <div 
           onClick={() => setIsFlipped(!isFlipped)}
           className={`w-full min-h-[250px] bg-gradient-to-br from-[#1e293b] to-[#0f172a] rounded-[2.5rem] border border-slate-700/50 p-6 cursor-pointer transition-all duration-500 transform-style-3d shadow-2xl hover:shadow-[0_0_40px_rgba(79,70,229,0.15)] flex flex-col justify-center text-center relative group ${isFlipped ? 'rotate-y-180' : ''}`}
@@ -56,6 +109,8 @@ export default function FlashcardTab({ kit, setKit }) {
           </div>
         </div>
       </div>
+
+            )}
 
       <div className="h-28 mt-12 w-full max-w-3xl flex justify-center">
         {isFlipped ? (
