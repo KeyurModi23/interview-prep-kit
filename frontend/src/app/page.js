@@ -17,7 +17,7 @@ export default function Home() {
   const [pastKits, setPastKits] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/v1/users/me', { credentials: 'include' })
+    fetch(\`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/users/me', { credentials: 'include' })
       .then(res => res.json())
       .then(data => { if (data.success) setUser(data.data); })
       .catch(() => {})
@@ -40,7 +40,7 @@ export default function Home() {
 
   useEffect(() => {
     if (user) {
-      fetch('http://localhost:3001/api/v1/kits', { credentials: 'include' })
+      fetch(\`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/kits', { credentials: 'include' })
         .then(res => res.json())
         .then(data => {
           if (data.success) setPastKits(data.data);
@@ -50,7 +50,7 @@ export default function Home() {
   }, [user]);
 
   const handleLogout = async () => {
-    await fetch('http://localhost:3001/api/v1/users/logout', { method: 'POST', credentials: 'include' });
+    await fetch(\`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/users/logout', { method: 'POST', credentials: 'include' });
     setUser(null); setKit(null);
   };
 
@@ -79,7 +79,7 @@ export default function Home() {
     e.preventDefault();
     setIsLoading(true); setError(null);
     try {
-      const response = await fetch('http://localhost:3001/api/v1/kits/generate', {
+      const response = await fetch(\`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/kits/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jobDescription, companyUrl, days })
@@ -87,7 +87,7 @@ export default function Home() {
       const data = await response.json();
       if (!data.success) throw new Error(data.message || 'Generation failed');
       setKit({ ...data.data, _isNew: true });
-      fetch('http://localhost:3001/api/v1/kits', {
+      fetch(\`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/kits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
