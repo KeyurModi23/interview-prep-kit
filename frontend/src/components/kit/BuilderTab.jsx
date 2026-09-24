@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import { Target, CheckCircle2, ChevronUp, ChevronDown, Edit2, Trash2, RefreshCw, Pin } from 'lucide-react';
 
 export default function BuilderTab({ kit, setKit }) {
   const [editingId, setEditingId] = useState(null);
@@ -16,106 +17,110 @@ export default function BuilderTab({ kit, setKit }) {
   const handleMove = (index, direction) => {
     setKit(prev => {
       const newQs = [...prev.questions];
-      if (direction === 'up' && index > 0) {
-        [newQs[index - 1], newQs[index]] = [newQs[index], newQs[index - 1]];
-      } else if (direction === 'down' && index < newQs.length - 1) {
-        [newQs[index + 1], newQs[index]] = [newQs[index], newQs[index + 1]];
-      }
+      if (direction === 'up' && index > 0) [newQs[index - 1], newQs[index]] = [newQs[index], newQs[index - 1]];
+      else if (direction === 'down' && index < newQs.length - 1) [newQs[index + 1], newQs[index]] = [newQs[index], newQs[index + 1]];
       return { ...prev, questions: newQs };
     });
   };
 
-  const handleDelete = (id) => {
-    setKit(prev => ({ ...prev, questions: prev.questions.filter(q => q.id !== id) }));
-  };
+  const handleDelete = (id) => setKit(prev => ({ ...prev, questions: prev.questions.filter(q => q.id !== id) }));
 
   const handleRegenerate = async () => {
     setIsRegenerating(true);
-    await new Promise(res => setTimeout(res, 1000));
+    await new Promise(res => setTimeout(res, 1000)); // Fake delay for UI demo
     setKit(prev => {
       const preserved = prev.questions.filter(q => q._isEdited);
-      const newQ = {
-        id: `q-regen-${Date.now()}`,
-        category: 'technical',
-        prompt: '[REGENERATED] New deep technical question.',
-        answer_outline: 'Generated outline...',
-        difficulty: 2
-      };
+      const newQ = { id: `q-regen-${Date.now()}`, category: 'technical', prompt: '[NEW] Regenerated behavioral scenario.', answer_outline: 'Generated outline...', difficulty: 2 };
       return { ...prev, questions: [...preserved, newQ] };
     });
     setIsRegenerating(false);
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <section className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Requirements Profile</h2>
-        <div className="grid grid-cols-1 gap-4">
-          {kit.role?.requirements?.map(req => (
-            <div key={req.id} className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 border border-slate-100">
-              <span className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider ${req.priority === 'must' ? 'bg-rose-100 text-rose-700' : 'bg-sky-100 text-sky-700'}`}>
-                {req.priority}
-              </span>
-              <div>
-                <p className="text-slate-800 font-semibold">{req.text}</p>
-                <p className="text-sm text-slate-500 mt-1 capitalize">{req.kind}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-slate-900">Question Bank</h2>
-          <button 
-            onClick={handleRegenerate}
-            disabled={isRegenerating}
-            className="px-5 py-2.5 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition-colors disabled:opacity-50 cursor-pointer"
-          >
-            {isRegenerating ? 'Regenerating...' : 'Regenerate Section'}
-          </button>
-        </div>
-        
-        <div className="space-y-4">
-          {kit.questions?.map((q, index) => (
-            <div key={q.id} className="group flex gap-5 border border-slate-200 rounded-2xl p-5 hover:border-indigo-300 hover:shadow-md transition-all bg-white">
-              <div className="flex flex-col gap-2 justify-center items-center">
-                <button onClick={() => handleMove(index, 'up')} className="text-slate-300 hover:text-indigo-600 cursor-pointer transition-colors">▲</button>
-                <span className="text-xs font-bold text-slate-400">{index + 1}</span>
-                <button onClick={() => handleMove(index, 'down')} className="text-slate-300 hover:text-indigo-600 cursor-pointer transition-colors">▼</button>
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
-                    <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-bold capitalize">{q.category || 'General'}</span>
-                    {q._isEdited && <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-lg">✓ Pinned</span>}
-                  </div>
-                  <div className="flex gap-3">
-                    <button onClick={() => setEditingId(q.id)} className="text-sm text-slate-400 hover:text-indigo-600 font-bold cursor-pointer transition-colors">Edit</button>
-                    <button onClick={() => handleDelete(q.id)} className="text-sm text-slate-400 hover:text-rose-600 font-bold cursor-pointer transition-colors">Delete</button>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Left Column: Context & Requirements */}
+      <div className="lg:col-span-4 space-y-6">
+        <section className="bg-[#111827]/60 backdrop-blur-xl rounded-[2rem] p-5 border border-white/10 shadow-xl">
+          <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2"><Target className="w-5 h-5 text-amber-400" /> Target Profile</h2>
+          <div className="space-y-4">
+            {kit.role?.requirements?.map(req => (
+              <div key={req.id} className="flex gap-4 p-4 rounded-2xl bg-[#030712]/50 border border-white/5 hover:border-amber-500/30 transition-colors group">
+                <div className="mt-1">
+                  <CheckCircle2 className={`w-5 h-5 ${req.priority === 'must' ? 'text-rose-400' : 'text-sky-400'}`} />
+                </div>
+                <div>
+                  <p className="text-slate-300 font-medium leading-snug">{req.text}</p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{req.kind}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">•</span>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${req.priority === 'must' ? 'text-rose-500' : 'text-sky-500'}`}>{req.priority}</span>
                   </div>
                 </div>
-                {editingId === q.id ? (
-                  <form onSubmit={(e) => { e.preventDefault(); handleEdit(q.id, e.target.prompt.value, e.target.outline.value); }} className="space-y-4">
-                    <textarea name="prompt" className="w-full p-4 border border-indigo-400 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 font-semibold transition-all" rows="2" defaultValue={q.prompt} autoFocus />
-                    <textarea name="outline" className="w-full p-4 border border-slate-200 rounded-xl outline-none text-sm text-slate-700 transition-all" rows="3" defaultValue={q.answer_outline} placeholder="Answer outline..." />
-                    <div className="flex gap-3">
-                      <button type="submit" className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-sm hover:bg-indigo-700 cursor-pointer">Save</button>
-                      <button type="button" onClick={() => setEditingId(null)} className="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-200 cursor-pointer">Cancel</button>
-                    </div>
-                  </form>
-                ) : (
-                  <div className="cursor-pointer" onClick={() => setEditingId(q.id)}>
-                    <h3 className="text-lg font-bold text-slate-900 mb-3 group-hover:text-indigo-700 transition-colors">{q.prompt}</h3>
-                    <p className="text-slate-600 bg-slate-50 p-4 rounded-xl text-sm border border-slate-100 leading-relaxed">{q.answer_outline}</p>
-                  </div>
-                )}
               </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* Right Column: Question Bank */}
+      <div className="lg:col-span-8">
+        <section className="bg-[#111827]/60 backdrop-blur-xl rounded-[2rem] p-5 border border-white/10 shadow-xl">
+          <div className="flex justify-between items-center mb-8 pb-6 border-b border-white/5">
+            <div>
+              <h2 className="text-lg font-bold text-white">Question Bank</h2>
+              <p className="text-sm text-slate-400 mt-1">Curated specifically for your requirements</p>
             </div>
-          ))}
-        </div>
-      </section>
+            <button  
+              onClick={handleRegenerate} disabled={isRegenerating}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold rounded-xl transition-all border border-amber-500/20 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isRegenerating ? 'animate-spin' : ''}`} />
+              {isRegenerating ? 'Analyzing gaps...' : 'Regenerate Unpinned'}
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+            {kit.questions?.map((q, index) => (
+              <div key={q.id} className="group flex gap-4 bg-[#030712]/40 border border-white/5 rounded-2xl p-4 hover:border-amber-500/40 hover:bg-[#030712]/60 transition-all">
+                <div className="flex flex-col gap-1 justify-center items-center opacity-30 group-hover:opacity-100 transition-opacity">
+                  <button  onClick={() => handleMove(index, 'up')} className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"><ChevronUp className="w-3.5 h-3.5" /></button>
+                  <span className="text-xs font-bold text-slate-600">{index + 1}</span>
+                  <button  onClick={() => handleMove(index, 'down')} className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white"><ChevronDown className="w-3.5 h-3.5" /></button>
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="bg-white/5 text-slate-300 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">{q.category || 'General'}</span>
+                      {q._isEdited && <span className="flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-emerald-500/10 px-3 py-1 rounded-full"><Pin className="w-3 h-3" /> Pinned</span>}
+                    </div>
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button  onClick={() => setEditingId(q.id)} className="p-2 text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
+                      <button  onClick={() => handleDelete(q.id)} className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </div>
+                  
+                  {editingId === q.id ? (
+                    <form onSubmit={(e) => { e.preventDefault(); handleEdit(q.id, e.target.prompt.value, e.target.outline.value); }} className="space-y-4 mt-4 animate-in fade-in">
+                      <textarea name="prompt" className="w-full p-4 bg-[#111827] border border-amber-500/50 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-white font-medium" rows="2" defaultValue={q.prompt} autoFocus />
+                      <textarea name="outline" className="w-full p-4 bg-[#111827] border border-white/10 rounded-xl outline-none text-sm text-slate-300 focus:border-amber-500/50" rows="4" defaultValue={q.answer_outline} />
+                      <div className="flex gap-3">
+                        <button  type="submit" className="px-5 py-2 bg-amber-500 text-white rounded-lg text-sm font-bold hover:bg-amber-500 transition-colors">Save Question</button>
+                        <button  type="button" onClick={() => setEditingId(null)} className="px-5 py-2 bg-white/5 text-slate-300 rounded-lg text-sm font-bold hover:bg-white/10 transition-colors">Cancel</button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="cursor-pointer pr-4" onClick={() => setEditingId(q.id)}>
+                      <h3 className="text-lg font-bold text-slate-100 mb-3 group-hover:text-amber-300 transition-colors leading-snug">{q.prompt}</h3>
+                      <p className="text-slate-400 text-sm leading-relaxed transition-all">{q.answer_outline}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
