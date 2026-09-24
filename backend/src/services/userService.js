@@ -1,36 +1,21 @@
 import { User } from '../models/User.js';
-import { AppError } from '../utils/AppError.js';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env.js';
-import bcrypt from 'bcryptjs';
 
-export const registerUser = async (userData) => {
-  const { name, email, password } = userData;
-
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    throw new AppError('User already exists', 400);
-  }
-
+export const registerUser = async (data) => {
   const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword
-  });
-
-  const token = jwt.sign({ id: user._id }, config.jwtSecret, { expiresIn: '30d' });
-
-  return {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    token
-  };
+  const hashedPassword = await bcrypt.hash(data.password, salt);
+  const user = await User.create({ name: data.name, email: data.email, password: hashedPassword });
+  return user;
 };
 
-export const getUsers = async () => {
-  return await User.find({});
+export const loginUser = async (email, password) => {
+  const user = await User.findOne({ email }).select('+password');
+  if (user && (await bcrypt.compare(password, user.password))) {
+    return user;
+  }
+  throw new Error('Invalid email or password');
 };
+
+export const generateToken = (id) => jwt.sign({ id }, config.jwtSecret, { expiresIn: '30d' });

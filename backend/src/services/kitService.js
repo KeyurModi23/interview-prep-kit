@@ -1,6 +1,6 @@
-import { runPipeline } from '../pipeline/orchestrator.js';
+﻿import { runPipeline } from '../pipeline/orchestrator.js';
 
-export const generateKit = async (jobDescription, companyUrl) => {
+export const generateKit = async (jobDescription, companyUrl, days) => {
   // Call the LLM multi-pass validation pipeline we built in Phase 1
-  return await runPipeline(jobDescription, companyUrl);
+  return await runPipeline(jobDescription, companyUrl, days);
 };

@@ -35,11 +35,18 @@ async function evaluate() {
       const { jobDescription, companyUrl, days } = c;
       
       // We pass the jobDescription to the existing pipeline
-      const kit = await runPipeline(jobDescription);
-      kits.push({ caseId: c.id || index, ...kit });
+      const kit = await runPipeline(jobDescription, companyUrl, days || 4);
+      kits.push({ id: c.id || index.toString(), status: "ok", kit, error: null });
     }
 
-    await fs.writeFile(path.resolve(outputFile), JSON.stringify(kits, null, 2));
+    
+    const finalOutput = {
+      version: "1.0",
+      generated_at: new Date().toISOString(),
+      kits: kits
+    };
+    await fs.writeFile(path.resolve(outputFile), JSON.stringify(finalOutput, null, 2));
+  
     console.log(`\nEvaluation complete! Successfully wrote ${kits.length} kits to ${outputFile}`);
     
   } catch (err) {
