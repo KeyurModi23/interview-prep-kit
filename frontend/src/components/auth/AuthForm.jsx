@@ -21,7 +21,7 @@ export default function AuthForm({ onAuthSuccess }) {
     try {
       const endpoint = authMode === 'login' ? '/api/v1/users/login' : '/api/v1/users/register';
       const body = authMode === 'login' ? { email, password } : { name, email, password };
-      const response = await fetch(`http://localhost:3001${endpoint}`, {
+      const response = await fetch(`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}\${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
