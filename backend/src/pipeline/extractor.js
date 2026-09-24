@@ -1,25 +1,50 @@
 import { generateStructuredJSON } from '../services/llmService.js';
 import { Type } from '@google/genai';
 
-const requirementSchema = {
-  type: Type.ARRAY,
-  description: 'List of requirements extracted from the job description',
-  items: {
-    type: Type.OBJECT,
-    properties: {
-      id: { type: Type.STRING, description: 'Stable unique ID like r1, r2, r3' },
-      text: { type: Type.STRING, description: 'The exact requirement text' },
-      kind: { type: Type.STRING, enum: ['technical', 'behavioural', 'domain'] },
-      priority: { type: Type.STRING, enum: ['must', 'nice'] }
+const extractionSchema = {
+  type: Type.OBJECT,
+  properties: {
+    source: {
+      type: Type.OBJECT,
+      properties: {
+        company: { type: Type.STRING },
+        role: { type: Type.STRING },
+        location: { type: Type.STRING }
+      }
     },
-    required: ['id', 'text', 'kind', 'priority']
+    company_brief: {
+      type: Type.OBJECT,
+      properties: {
+        summary: { type: Type.STRING },
+        what_they_do: { type: Type.STRING }
+      }
+    },
+    role: {
+      type: Type.OBJECT,
+      properties: {
+        title: { type: Type.STRING },
+        seniority: { type: Type.STRING },
+        responsibilities: { type: Type.ARRAY, items: { type: Type.STRING } },
+        requirements: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              id: { type: Type.STRING },
+              text: { type: Type.STRING },
+              kind: { type: Type.STRING },
+              priority: { type: Type.STRING }
+            }
+          }
+        }
+      }
+    }
   }
 };
 
-export const extractRequirements = async (jobDescription) => {
-  const sysPrompt = "You are an expert technical recruiter. Extract the requirements from the provided job description. Assign each a unique ID (r1, r2, etc). Carefully distinguish between 'must' (required) and 'nice' (nice to have / bonus). Categorize them as technical, behavioural, or domain.";
+export const extractMetadata = async (jobDescription, companyContext) => {
+  const sysPrompt = "You are an expert technical recruiter and researcher. Extract the job requirements, responsibilities, and metadata from the job description. If company context is provided, summarize what the company does. Assign each requirement a unique ID (r1, r2). Categorize them (technical, behavioural, domain) and set priority (must, nice).";
+  const prompt = `Company Context:\n${companyContext}\n\nJob Description:\n${jobDescription}`;
   
-  const prompt = `Job Description:\n${jobDescription}`;
-  
-  return await generateStructuredJSON(sysPrompt, prompt, requirementSchema);
+  return await generateStructuredJSON(sysPrompt, prompt, extractionSchema);
 };

@@ -40,6 +40,28 @@ export default function Home() {
     return <KitManager initialKit={kit} onLogout={handleLogout} />;
   }
 
+  
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        if (file.name.endsWith('.json')) {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.jobDescription) setJobDescription(parsed.jobDescription);
+          if (parsed.companyUrl) setCompanyUrl(parsed.companyUrl);
+          if (parsed.days) setDays(parsed.days);
+        } else {
+          setJobDescription(evt.target.result);
+        }
+      } catch (err) {
+        setError('Failed to parse file. Ensure it is valid text or JSON.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const handleGenerate = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -92,7 +114,14 @@ export default function Home() {
           )}
           
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">Job Description</label>
+            
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-bold text-slate-700">Job Description</label>
+            <label className="text-xs font-extrabold text-indigo-600 cursor-pointer hover:text-indigo-800 bg-indigo-50 px-3 py-1 rounded-lg transition-colors">
+              📁 Upload File
+              <input type="file" accept=".txt,.json" className="hidden" onChange={handleFileUpload} />
+            </label>
+          </div>
             <textarea 
               required rows={6}
               className="w-full p-4 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800 transition-all shadow-sm"
