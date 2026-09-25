@@ -37,9 +37,15 @@ export default function BuilderTab({ kit, setKit }) {
     setIsRegenerating(true);
     await new Promise(res => setTimeout(res, 1000)); // Fake delay for UI demo
     setKit(prev => {
-      const preserved = prev.questions.filter(q => q._isEdited);
-      const newQ = { id: `q-regen-${Date.now()}`, category: 'technical', prompt: '[NEW] Regenerated behavioral scenario.', answer_outline: 'Generated outline...', difficulty: 2 };
-      return { ...prev, questions: [...preserved, newQ] };
+      const newQuestions = prev.questions.map(q => {
+        if (q._isEdited) return q; // Preserve pinned questions
+        return {
+          ...q,
+          id: `q-regen-${Date.now()}-${Math.random()}`,
+          prompt: `[REGENERATED] ${q.prompt}`
+        };
+      });
+      return { ...prev, questions: newQuestions };
     });
     setIsRegenerating(false);
   };
