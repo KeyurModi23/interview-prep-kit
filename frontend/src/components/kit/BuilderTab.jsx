@@ -33,17 +33,6 @@ export default function BuilderTab({ kit, setKit }) {
 
   const handleDelete = (id) => setKit(prev => ({ ...prev, questions: prev.questions.filter(q => q.id !== id) }));
 
-  
-  const handleMove = (index, direction) => {
-    const newQuestions = [...kit.questions];
-    if (direction === 'up' && index > 0) {
-      [newQuestions[index - 1], newQuestions[index]] = [newQuestions[index], newQuestions[index - 1]];
-    } else if (direction === 'down' && index < newQuestions.length - 1) {
-      [newQuestions[index + 1], newQuestions[index]] = [newQuestions[index], newQuestions[index + 1]];
-    } else { return; }
-    setKit({ ...kit, questions: newQuestions });
-  };
-
   const handleRegenerate = async () => {
     setIsRegenerating(true);
     await new Promise(res => setTimeout(res, 1000)); // Fake delay for UI demo
