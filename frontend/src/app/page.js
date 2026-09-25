@@ -24,19 +24,7 @@ export default function Home() {
       .finally(() => setIsLoadingSession(false));
   }, []);
 
-  useEffect(() => {
-    if (kit && kit._id && !kit._isNew) {
-      const timer = setTimeout(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/kits/${kit._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ kit })
-        }).catch(console.error);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [kit]);
+  
 
   useEffect(() => {
     if (user) {
