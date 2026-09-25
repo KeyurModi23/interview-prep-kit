@@ -41,7 +41,7 @@ export default function BuilderTab({ kit, setKit }) {
         if (q._isEdited) return q; // Preserve pinned questions
         return {
           ...q,
-          id: `q-regen-${Date.now()}-${Math.random()}`,
+          id: q.id,
           prompt: `[REGENERATED] ${q.prompt}`
         };
       });
