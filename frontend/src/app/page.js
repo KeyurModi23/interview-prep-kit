@@ -100,6 +100,7 @@ export default function Home() {
       .then(savedData => {
         if (savedData.success) {
           setPastKits(prev => [savedData.data, ...prev]);
+            setKit(prev => ({ ...prev, _id: savedData.data._id, _isNew: false }));
         }
       })
       .catch(console.error);
@@ -212,7 +213,7 @@ You have run out of free tier requests. Please provide a new API key.`
               {pastKits.map(pk => (
                 <div 
                   key={pk._id} 
-                  onClick={() => setKit(pk.data)}
+                  onClick={() => setKit({ ...pk.data, _id: pk._id })}
                   className="bg-[#111827]/60 backdrop-blur-xl rounded-2xl p-5 border border-white/5 hover:border-amber-500/50 hover:bg-[#111827] transition-all cursor-pointer group"
                 >
                   <h4 className="font-bold text-slate-200 group-hover:text-amber-400 transition-colors">{pk.title || "Untitled Role"}</h4>
