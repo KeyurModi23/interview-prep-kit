@@ -87,6 +87,9 @@ export default function Home() {
       const data = await response.json();
       if (!data.success) throw new Error(data.message || 'Generation failed');
       setKit({ ...data.data, _isNew: true });
+        setJobDescription('');
+        setCompanyUrl('');
+        setDays(7);
       fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/kits`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
