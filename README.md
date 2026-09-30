@@ -22,7 +22,7 @@ This application turns a job description and a company URL into a highly persona
 3. Create a `.env` file in the `backend` directory (reference `.env.example`):
    ```env
    PORT=3001
-   MONGODB_URI=mongodb://localhost:27017/alphabin
+   MONGODB_URI=mongodb://localhost:27017/interview-prep
    JWT_SECRET=your_jwt_secret
    GEMINI_API_KEY=your_gemini_api_key
    NODE_ENV=development

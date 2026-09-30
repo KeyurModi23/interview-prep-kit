@@ -1,4 +1,4 @@
-# Alphabin Interview Task - Backend
+# Interview Preparation Kit - Backend
 
 ## Setup
 1. `npm install`
